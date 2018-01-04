@@ -4,7 +4,10 @@ import { Version } from '@microsoft/sp-core-library';
 import {
   BaseClientSideWebPart,
   IPropertyPaneConfiguration,
-  PropertyPaneTextField
+  PropertyPaneTextField,
+  PropertyPaneCheckbox,
+  PropertyPaneDropdown,
+  PropertyPaneToggle,
 } from '@microsoft/sp-webpart-base';
 
 import * as strings from 'QuickLinksWebPartStrings';
@@ -12,7 +15,9 @@ import QuickLinks from './components/QuickLinks';
 import { IQuickLinksProps } from './components/IQuickLinksProps';
 
 export interface IQuickLinksWebPartProps {
-  description: string;
+  numberOfLinks: number;
+  listName: string;
+  context: string;
 }
 
 export default class QuickLinksWebPart extends BaseClientSideWebPart<IQuickLinksWebPartProps> {
@@ -21,7 +26,9 @@ export default class QuickLinksWebPart extends BaseClientSideWebPart<IQuickLinks
     const element: React.ReactElement<IQuickLinksProps > = React.createElement(
       QuickLinks,
       {
-        description: this.properties.description
+        numberOfLinks: this.properties.numberOfLinks,
+        listName: this.properties.listName,
+        context: this.context.pageContext.web.title
       }
     );
 
@@ -41,12 +48,21 @@ export default class QuickLinksWebPart extends BaseClientSideWebPart<IQuickLinks
           },
           groups: [
             {
-              groupName: strings.BasicGroupName,
+              groupName: 'QuickLinks Properties',
               groupFields: [
-                PropertyPaneTextField('description', {
-                  label: strings.DescriptionFieldLabel
+              PropertyPaneDropdown('numberOfLinks', {
+                label: 'Number of Links to Display',
+                options: [
+                  { key: 1, text: '1'},
+                  { key: 3, text: '3' },
+                  { key: 5, text: '5' },
+                  { key: 10, text: '10'}
+                ],selectedKey: 5
+              }),
+                PropertyPaneTextField('listName',{
+                  label: 'Link Source (SharePoint List)'
                 })
-              ]
+            ]
             }
           ]
         }
