@@ -9,11 +9,17 @@ import {
   EnvironmentType
 } from '@microsoft/sp-core-library';
 
+import ISPLinkList from '../interfaces/ISharePointLinkListItem';
+
 //State defaults to type object but we want a bit more than that so let's make an interface
 export interface IQuickLinksState{
-  QuickLinkEnvironMent: string;
-  QuickLinkNumberOfLinks: number;
+  HelpfulLinks: ISPLinkList[];
 }
+
+import MockHttpClient from '../services/MockSharePointHttpClient';
+
+
+
 
 export default class QuickLinks extends React.Component<IQuickLinksProps, IQuickLinksState> {
   
@@ -23,43 +29,67 @@ export default class QuickLinks extends React.Component<IQuickLinksProps, IQuick
     super(props);
     const defaultEnvironment: string = "Local";
     const defaultNumber: number = props.numberOfLinks;
-
+    const testItems: ISPLinkList[] = [{Title: "Google", Url: "http://www.google.com", Id: 1 } as ISPLinkList] 
+    
     this.state = {
-      QuickLinkEnvironMent: defaultEnvironment,
-      QuickLinkNumberOfLinks: defaultNumber
+      HelpfulLinks: testItems
     }
 
   }
 
   public componentWillMount(): void{
     if (Environment.type === EnvironmentType.Local) {
-      this.setState({QuickLinkEnvironMent: "Local Workbench"});
+      this._getMockListData().then((response) => {
+        const ListItems: ISPLinkList[] = response;
+        this.setState({HelpfulLinks: ListItems});
+      });
     }else if (Environment.type == EnvironmentType.SharePoint ||
               Environment.type == EnvironmentType.ClassicSharePoint) {
-      this.setState({QuickLinkEnvironMent: "Actual SharePoint"});
+      
     }
   }
 
  public componentDidUpdate(previousProps: IQuickLinksProps, previousState: IQuickLinksState ): void{
-  if(previousState.QuickLinkNumberOfLinks !== this.props.numberOfLinks){
-    this.setState({QuickLinkNumberOfLinks: this.props.numberOfLinks})
-  }
+
  }
   
   public render(): React.ReactElement<IQuickLinksProps> {
+
+    const links: JSX.Element[] = this.state.HelpfulLinks.map((item: ISPLinkList, i: number): JSX.Element => {
+      if (i < this.props.numberOfLinks) {
+        return (
+          <li key={item.Id}><a href={item.Url} target='_blank'>{item.Title}</a></li>
+        );
+      }
+    });
+
     return (
       <div className={styles.quickLinks}>
         <div className={styles.container}>
           <div className={`ms-Grid-row ms-bgColor-themeDark ms-fontColor-white ${styles.row}`}>
             <div className="ms-Grid-col ms-lg10 ms-xl8 ms-xlPush2 ms-lgPush1">
               <span className="ms-font-xl ms-fontColor-white">Welcome to SpFx!</span>
-              <p className="ms-font-l ms-fontColor-white">Below is a list {this.state.QuickLinkNumberOfLinks} links you can use to learn more about the SharePoint Framework</p>
+              <p className="ms-font-l ms-fontColor-white">Below is a list of links you can use to learn more about the SharePoint Framework</p>
               <p className="ms-font-l ms-fontColor-white">Environment from props: {this.props.context}</p>
-              <p className="ms-font-l ms-fontColor-white">Environment from State: {this.state.QuickLinkEnvironMent}</p>
+              <ul className={styles.customList}>
+                {links}
+              </ul>
             </div>
           </div>
         </div>
       </div>
     );
   }
+
+
+
+  private _getMockListData(): Promise<ISPLinkList[]> {
+    return MockHttpClient.getListItems()
+      .then((data: ISPLinkList[]) => {
+        var listData: ISPLinkList[] = data;
+        return listData;
+      }) as Promise<ISPLinkList[]>;
+  }
+
+
 }
