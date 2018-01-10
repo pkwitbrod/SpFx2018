@@ -46,7 +46,11 @@ export default class QuickLinks extends React.Component<IQuickLinksProps, IQuick
     }else if (Environment.type == EnvironmentType.SharePoint ||
               Environment.type == EnvironmentType.ClassicSharePoint) {
       if(!this._listNotConfigured(this.props)){
-        const sharepointClient = new SharePointService(this.props.listName, )
+        const sharepointClient = new SharePointService(this.props.listName, this.props.spContext )
+        sharepointClient.getItems().then((sharePointResponse) => {
+          const ListItems: ISPLinkList[] = sharePointResponse;
+          this.setState({HelpfulLinks: ListItems})
+        });
       }
     }
   }
