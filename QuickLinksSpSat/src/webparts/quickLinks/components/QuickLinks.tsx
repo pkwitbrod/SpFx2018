@@ -14,25 +14,25 @@ import ISPLinkList from '../interfaces/ISharePointLinkListItem';
 //State defaults to type object but we want a bit more than that so let's make an interface
 export interface IQuickLinksState{
   HelpfulLinks: ISPLinkList[];
+  status: string;
 }
 
 import MockHttpClient from '../services/MockSharePointHttpClient';
-
-
+import { SharePointService } from '../services/SharePointClient';
 
 
 export default class QuickLinks extends React.Component<IQuickLinksProps, IQuickLinksState> {
   
 
-
   constructor(props: IQuickLinksProps, state: IQuickLinksState){
     super(props);
-    const defaultEnvironment: string = "Local";
-    const defaultNumber: number = props.numberOfLinks;
     const testItems: ISPLinkList[] = [{Title: "Google", Url: "http://www.google.com", Id: 1 } as ISPLinkList] 
-    
+  
+
+
     this.state = {
-      HelpfulLinks: testItems
+      HelpfulLinks: testItems,
+      status: this._listNotConfigured(this.props) ? 'Please configure list in Web Part properties' : 'Ready',
     }
 
   }
@@ -45,13 +45,12 @@ export default class QuickLinks extends React.Component<IQuickLinksProps, IQuick
       });
     }else if (Environment.type == EnvironmentType.SharePoint ||
               Environment.type == EnvironmentType.ClassicSharePoint) {
-      
+      if(!this._listNotConfigured(this.props)){
+        const sharepointClient = new SharePointService(this.props.listName, )
+      }
     }
   }
 
- public componentDidUpdate(previousProps: IQuickLinksProps, previousState: IQuickLinksState ): void{
-
- }
   
   public render(): React.ReactElement<IQuickLinksProps> {
 
@@ -89,6 +88,12 @@ export default class QuickLinks extends React.Component<IQuickLinksProps, IQuick
         var listData: ISPLinkList[] = data;
         return listData;
       }) as Promise<ISPLinkList[]>;
+  }
+
+  private _listNotConfigured(props: IQuickLinksProps): boolean {
+    return props.listName === undefined ||
+      props.listName === null ||
+      props.listName.length === 0;
   }
 
 

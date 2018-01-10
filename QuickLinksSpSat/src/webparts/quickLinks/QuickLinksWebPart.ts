@@ -28,7 +28,8 @@ export default class QuickLinksWebPart extends BaseClientSideWebPart<IQuickLinks
       {
         numberOfLinks: this.properties.numberOfLinks,
         listName: this.properties.listName,
-        context: this.context.pageContext.web.title
+        context: this.context,
+        spContext: this.context.spHttpClient
       }
     );
 
