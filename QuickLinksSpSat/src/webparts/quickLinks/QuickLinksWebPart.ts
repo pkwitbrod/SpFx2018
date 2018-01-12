@@ -23,12 +23,16 @@ export interface IQuickLinksWebPartProps {
 export default class QuickLinksWebPart extends BaseClientSideWebPart<IQuickLinksWebPartProps> {
 
   public render(): void {
+    if ( !this.properties.numberOfLinks)
+    {
+    this.properties.numberOfLinks= 5;
+    }
     const element: React.ReactElement<IQuickLinksProps > = React.createElement(
       QuickLinks,
       {
         numberOfLinks: this.properties.numberOfLinks,
         listName: this.properties.listName,
-        context: this.context,
+        context: this.context.pageContext.web.absoluteUrl,
         spContext: this.context.spHttpClient
       }
     );

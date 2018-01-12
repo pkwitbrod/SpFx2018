@@ -1,5 +1,4 @@
-import SPHttpClient from "@microsoft/sp-http/lib/spHttpClient/SPHttpClient";
-
+import { SPHttpClient } from '@microsoft/sp-http';
 
 
 
@@ -11,7 +10,7 @@ import SPHttpClientResponse from "@microsoft/sp-http/lib/spHttpClient/SPHttpClie
 
 export class SharePointService {
     
-      constructor(private _listName: string, private _httpClient: SPHttpClient) {
+      constructor(private _listName: string, private _siteUrl: string, private _httpClient: SPHttpClient) {
           
       }
     
@@ -22,15 +21,15 @@ export class SharePointService {
 
       private _getItems(): Promise<ISPLinkList[]> {
         const queryString: string = `?$select=Id,Title,Url`;
-        //const queryUrl: string = this._listsUrl + queryString;
-        return this._httpClient.get("", SPHttpClient.configurations.v1)
+        const url: string = `${this._siteUrl}/_api/lists/getbytitle('${this._listName}')${queryString}`;
+        return this._httpClient.get(url, SPHttpClient.configurations.v1)
         .then((response: SPHttpClientResponse) => {
             return response.json();
         }).then((json: {value: ISPLinkList[]} ) =>{
             return json.value.map((task: ISPLinkList) => {
                 return task;
-            })
-        })
+            });
+        });
       }
     
     

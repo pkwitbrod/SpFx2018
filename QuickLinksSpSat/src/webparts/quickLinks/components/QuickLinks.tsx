@@ -14,7 +14,6 @@ import ISPLinkList from '../interfaces/ISharePointLinkListItem';
 //State defaults to type object but we want a bit more than that so let's make an interface
 export interface IQuickLinksState{
   HelpfulLinks: ISPLinkList[];
-  status: string;
 }
 
 import MockHttpClient from '../services/MockSharePointHttpClient';
@@ -22,18 +21,13 @@ import { SharePointService } from '../services/SharePointClient';
 
 
 export default class QuickLinks extends React.Component<IQuickLinksProps, IQuickLinksState> {
-  
-
   constructor(props: IQuickLinksProps, state: IQuickLinksState){
     super(props);
-    const testItems: ISPLinkList[] = [{Title: "Google", Url: "http://www.google.com", Id: 1 } as ISPLinkList] 
+    const testItems: ISPLinkList[] = [{Title: "Google", Url: "http://www.google.com", Id: 1 } as ISPLinkList]; 
   
-
-
     this.state = {
       HelpfulLinks: testItems,
-      status: this._listNotConfigured(this.props) ? 'Please configure list in Web Part properties' : 'Ready',
-    }
+    };
 
   }
 
@@ -46,18 +40,16 @@ export default class QuickLinks extends React.Component<IQuickLinksProps, IQuick
     }else if (Environment.type == EnvironmentType.SharePoint ||
               Environment.type == EnvironmentType.ClassicSharePoint) {
       if(!this._listNotConfigured(this.props)){
-        const sharepointClient = new SharePointService(this.props.listName, this.props.spContext )
+        const sharepointClient = new SharePointService(this.props.listName, this.props.context, this.props.spContext );
         sharepointClient.getItems().then((sharePointResponse) => {
           const ListItems: ISPLinkList[] = sharePointResponse;
-          this.setState({HelpfulLinks: ListItems})
+          this.setState({HelpfulLinks: ListItems});
         });
       }
     }
   }
 
-  
   public render(): React.ReactElement<IQuickLinksProps> {
-
     const links: JSX.Element[] = this.state.HelpfulLinks.map((item: ISPLinkList, i: number): JSX.Element => {
       if (i < this.props.numberOfLinks) {
         return (
@@ -71,7 +63,8 @@ export default class QuickLinks extends React.Component<IQuickLinksProps, IQuick
         <div className={styles.container}>
           <div className={`ms-Grid-row ms-bgColor-themeDark ms-fontColor-white ${styles.row}`}>
             <div className="ms-Grid-col ms-lg10 ms-xl8 ms-xlPush2 ms-lgPush1">
-              <span className="ms-font-xl ms-fontColor-white">Welcome to SpFx!</span>
+              <span className="ms-font-xl ms-fontColor-white">Helpful Links!</span>
+              {this._statusElement(this.props)}
               <p className="ms-font-l ms-fontColor-white">Below is a list of links you can use to learn more about the SharePoint Framework</p>
               <p className="ms-font-l ms-fontColor-white">Environment from props: {this.props.context}</p>
               <ul className={styles.customList}>
@@ -83,8 +76,6 @@ export default class QuickLinks extends React.Component<IQuickLinksProps, IQuick
       </div>
     );
   }
-
-
 
   private _getMockListData(): Promise<ISPLinkList[]> {
     return MockHttpClient.getListItems()
@@ -100,5 +91,12 @@ export default class QuickLinks extends React.Component<IQuickLinksProps, IQuick
       props.listName.length === 0;
   }
 
+  private _statusElement(props: IQuickLinksProps): JSX.Element {
+    if(this._listNotConfigured(props)){
+      return (<p className="ms-font-xl ms-fontColor-red">List not configured</p>);
+    }else{
+      return (<p className="ms-font-xl ms-fontColor-red"></p>);
+    }
+  }
 
 }
