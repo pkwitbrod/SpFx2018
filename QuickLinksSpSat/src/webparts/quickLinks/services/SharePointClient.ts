@@ -21,7 +21,7 @@ export class SharePointService {
 
       private _getItems(): Promise<ISPLinkList[]> {
         const queryString: string = `?$select=Id,Title,Url`;
-        const url: string = `${this._siteUrl}/_api/lists/getbytitle('${this._listName}')${queryString}`;
+        const url: string = `${this._siteUrl}/_api/lists/getbytitle('${this._listName}')/items${queryString}`;
         return this._httpClient.get(url, SPHttpClient.configurations.v1)
         .then((response: SPHttpClientResponse) => {
             return response.json();
