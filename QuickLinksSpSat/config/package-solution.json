@@ -1,0 +1,12 @@
+{
+  "$schema": "https://dev.office.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "quick-links-sp-sat-client-side-solution",
+    "id": "487b7057-4588-4c62-913a-fbbc576ab1f4",
+    "version": "1.0.0.0",
+    "skipFeatureDeployment": true
+  },
+  "paths": {
+    "zippedPackage": "solution/quick-links-sp-sat.sppkg"
+  }
+}
